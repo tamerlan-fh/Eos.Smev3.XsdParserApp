@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using OfficeOpenXml;
+using System.Diagnostics;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -8,6 +9,14 @@ namespace Eos.Smev3.XsdParserApp
     {
         static void Main(string[] args)
         {
+            Console.WriteLine(new string('*', 90));
+            Console.WriteLine("** Copyright (c) ООО «ЭОС Платформа», 2024-07-03");
+            Console.WriteLine("** Программа отображает линейную структуру xml-элемента");
+            Console.WriteLine("**");
+            Console.WriteLine("** Требуется указать директорию с xsd-схемамм, описывающими xml, и имя корневого элемента");
+            Console.WriteLine(new string('*', 90));
+            Console.WriteLine();
+
             try
             {
                 MainAsync(args).GetAwaiter().GetResult();
@@ -17,127 +26,69 @@ namespace Eos.Smev3.XsdParserApp
                 Console.WriteLine(ex.Message);
             }
 
+            Console.Write("Press any key to exit...");
             Console.ReadKey();
         }
 
+        private static List<XmlElementInfo> _elements = new List<XmlElementInfo>();
+
         static async Task MainAsync(string[] args)
         {
-            //var paths = new[]
-            //{
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Commons.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\TDocument.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\CommonSimpleType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DDocument.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DRequestDocument.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\TSubject.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\TAddress.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DHouse.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DCountry.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DBenefitCategory.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DDeclarantKind.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DRegionsRF.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DDeclarantKindReg.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DContractor.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\TStatementCommons.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DActionCode.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DStatementType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\TObject.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DUsageType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DHousingPurpose.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DObjectPurpose.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DRoomPurpose.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DObjectType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DUnitType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DInterdepObjectType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DRecieveResultType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DReceivingMethod.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DAgreements.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Dictionary\DKindInfo.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Interdep_v026\Interdep_v026.xsd"
-            //};
-            //var paths = new[]
-            //{
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\TObject.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Commons.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\TAddress.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DHouse.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\CommonSimpleType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DUsageType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DHousingPurpose.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DObjectPurpose.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DRoomPurpose.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DObjectType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DUnitType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DInterdepObjectType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\TSubject.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\TDocument.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DDocument.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DRequestDocument.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DCountry.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DBenefitCategory.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DDeclarantKind.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DRegionsRF.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DDeclarantKindReg.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DContractor.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DCadastralAction.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DDeal.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DEncumbrance.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DRegistryAction.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DRequestEGRNAccessAction.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DResult.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DRight.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DRightAction.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\TStatementCommons.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DActionCode.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DStatementType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DRecieveResultType.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DReceivingMethod.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DAgreements.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Dictionary\DKindInfo.xsd",
-            //    @"C:\Users\FakhrutdinovTN\Desktop\ЕГРН\1.2.2\Statement_v026\Statement_v026.xsd",
-            //};
+            Console.Write("Директория с xsd-схемами: ");
+            string directory = Console.ReadLine()!;
 
-            var paths = new[]
+            if (!Directory.Exists(directory))
             {
-                @"C:\Users\FakhrutdinovTN\Desktop\Новая папка (10)\2.6.0\commons\Common.xsd",
-@"C:\Users\FakhrutdinovTN\Desktop\Новая папка (10)\2.6.0\commons\Package.xsd",
-@"C:\Users\FakhrutdinovTN\Desktop\Новая папка (10)\2.6.0\commons\Refund.xsd",
-@"C:\Users\FakhrutdinovTN\Desktop\Новая папка (10)\2.6.0\commons\Organization.xsd",
-@"C:\Users\FakhrutdinovTN\Desktop\Новая папка (10)\2.6.0\commons\Charge.xsd",
-@"C:\Users\FakhrutdinovTN\Desktop\Новая папка (10)\2.6.0\commons\Payment.xsd",
-@"C:\Users\FakhrutdinovTN\Desktop\Новая папка (10)\2.6.0\commons\Income.xsd",
-@"C:\Users\FakhrutdinovTN\Desktop\Новая папка (10)\2.6.0\commons\Clarification.xsd",
-@"C:\Users\FakhrutdinovTN\Desktop\Новая папка (10)\2.6.0\commons\Ruling.xsd",
-@"C:\Users\FakhrutdinovTN\Desktop\Новая папка (10)\2.6.0\ImportCharges.xsd"
-            };
+                Console.WriteLine($"Указанная директория не найдена");
+                return;
+            }
 
-            var schemas = await GetSchemasAsync(paths);
+            string[] paths = Directory.GetFiles(directory, "*.xsd", SearchOption.AllDirectories);
+            if (!paths.Any())
+            {
+                Console.WriteLine("Указанная директория не содержит файлы схем с расширением .xsd");
+                return;
+            }
 
-            var element = schemas
+            XmlSchema[] schemas = await GetSchemasAsync(paths);
+
+            Console.Write("Имя коренвого элемента xml: ");
+            string elementName = Console.ReadLine()!;
+
+            XmlSchemaElement? element = schemas
                 .SelectMany(schm => schm.Items.OfType<XmlSchemaElement>())
-                .FirstOrDefault(elm => elm.QualifiedName.Name == "ImportChargesRequest");
+                .FirstOrDefault(elm => elm.QualifiedName.Name == elementName);
 
-            var _element = ParseElement(element).First();
+            if (element is null)
+            {
+                Console.WriteLine($"Элемент '{elementName}' не описан в указанных xsd-схемах");
+                return;
+            }
 
-            var result = string.Join("\r\n", GetItems(_element));
+            XmlElementInfo _element = ParseElement(element).First();
+
+            string filename = $"_{elementName}_{DateTime.Now:yyyy-MM-dd_HH_mm}.xlsx";
+            Save(filename, _element);
+
+            Console.WriteLine($"Результат сохранен в файле {filename}");
         }
 
         private static async Task<XmlSchema[]> GetSchemasAsync(string[] paths)
         {
-            var schemas = new List<XmlSchema>();
-            foreach (var path in paths)
+            List<XmlSchema> schemas = new();
+            foreach (string path in paths)
             {
-                using (var reader = new XmlTextReader(path, new NameTable()))
+                using (XmlTextReader reader = new(path, new NameTable()))
                 {
-                    var schema = XmlSchema.Read(reader, null);
+                    XmlSchema schema = XmlSchema.Read(reader, null)!;
 
                     if (schema is not null)
                         schemas.Add(schema);
                 }
             }
 
-            var schemaSet = new XmlSchemaSet();
-            foreach (var schema in schemas)
+            XmlSchemaSet schemaSet = new();
+            foreach (XmlSchema schema in schemas)
             {
                 schemaSet.Add(schema);
             }
@@ -148,16 +99,14 @@ namespace Eos.Smev3.XsdParserApp
             return await Task.FromResult(schemaSet.Schemas().OfType<XmlSchema>().ToArray());
         }
 
-        static List<XmlElementInfo> _elements = new List<XmlElementInfo>();
-
-        private static XmlElementInfo[] ParseElement(XmlSchemaParticle obj, XmlElementInfo parent = null)
+        private static XmlElementInfo[] ParseElement(XmlSchemaAnnotated obj, XmlElementInfo? parent = null)
         {
             if (obj is XmlSchemaElement element)
             {
-                var type = GetTypeInfo(element.ElementSchemaType);
-                var _element = _elements.FirstOrDefault(e => e.ElementName == element.QualifiedName.Name && e.Namespace == element.QualifiedName.Namespace && e.Type.TypeName == type.TypeName && e.Parent?.ElementName == parent?.ElementName);
+                XmlTypeInfo type = GetTypeInfo(element);
+                XmlElementInfo? _element = _elements.FirstOrDefault(e => e.ElementName == element.QualifiedName.Name && e.Namespace == element.QualifiedName.Namespace && e.Type.TypeName == type.TypeName && e.Parent?.ElementName == parent?.ElementName);
 
-                if (_element == null)
+                if (_element is null)
                 {
                     _element = new XmlElementInfo
                     {
@@ -193,12 +142,51 @@ namespace Eos.Smev3.XsdParserApp
                     .ToArray();
             }
 
+            if (obj is XmlSchemaAttribute attribute)
+            {
+                XmlTypeInfo type = GetTypeInfo(attribute.AttributeSchemaType!);
+                XmlElementInfo? _element = _elements.FirstOrDefault(e => e.ElementName == attribute.QualifiedName.Name && e.Namespace == attribute.QualifiedName.Namespace && e.Type.TypeName == type.TypeName && e.Parent?.ElementName == parent?.ElementName);
+
+                if (_element is null)
+                {
+                    _element = new XmlElementInfo
+                    {
+                        Parent = parent,
+                        Type = type,
+                        ElementName = attribute.QualifiedName.Name,
+                        Namespace = attribute.QualifiedName.Namespace,
+                        Description = GetDescription(attribute),
+                        Min = attribute.Use == XmlSchemaUse.Required ? 1 : 0,
+                        Max = 1
+                    };
+                    _elements.Add(_element);
+                }
+
+                return new[] { _element };
+            }
+
             throw new NotImplementedException();
+        }
+
+        private static XmlTypeInfo GetTypeInfo(XmlSchemaElement element)
+        {
+            XmlTypeInfo type = GetTypeInfo(element.ElementSchemaType!);
+
+            if (!string.IsNullOrEmpty(type.TypeName))
+                return type;
+
+            return new XmlTypeInfo
+            {
+                Namespace = element.QualifiedName.Namespace,
+                TypeName = element.QualifiedName.Name,
+                Description = GetDescription(element.ElementSchemaType),
+                IsSimple = element.ElementSchemaType is XmlSchemaSimpleType
+            };
         }
 
         private static XmlTypeInfo GetTypeInfo(XmlSchemaType type)
         {
-            var _type = new XmlTypeInfo
+            XmlTypeInfo _type = new()
             {
                 Namespace = type.QualifiedName.Namespace,
                 TypeName = type.QualifiedName.Name,
@@ -206,33 +194,44 @@ namespace Eos.Smev3.XsdParserApp
                 IsSimple = type is XmlSchemaSimpleType
             };
 
-            if (!string.IsNullOrEmpty(_type.TypeName))
-                return _type;
-
-            return GetTypeInfo(type.BaseXmlSchemaType);
+            return _type.IsSimple && string.IsNullOrEmpty(_type.TypeName)
+                ? GetTypeInfo(type.BaseXmlSchemaType!)
+                : _type;
         }
 
-        private static XmlElementInfo[] GetElementsFromType(XmlSchemaType type, XmlElementInfo parent)
+        private static XmlElementInfo[]? GetElementsFromType(XmlSchemaType? type, XmlElementInfo parent)
         {
             if (type is XmlSchemaComplexType complexType)
             {
+                IEnumerable<XmlElementInfo> elements = Array.Empty<XmlElementInfo>();
+
+                if (complexType.AttributeUses.Count > 0)
+                {
+                    XmlElementInfo[] _elements = complexType.AttributeUses.Values
+                        .OfType<XmlSchemaAttribute>()
+                        .SelectMany(element => ParseElement(element, parent))
+                        .ToArray();
+
+                    elements = elements.Concat(_elements);
+                }
+
                 if (complexType.ContentTypeParticle is XmlSchemaGroupBase group)
                 {
-                    try
-                    {
-                        return group.Items
-                             .OfType<XmlSchemaParticle>()
-                             .SelectMany(element => ParseElement(element, parent))
-                             .ToArray();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw;
-                    }
+                    XmlElementInfo[] _elements = group.Items
+                        .OfType<XmlSchemaParticle>()
+                        .SelectMany(element => ParseElement(element, parent))
+                        .ToArray();
+
+                    elements = elements.Concat(_elements);
                 }
+
+                return elements.Any() ? elements.ToArray() : null;
             }
 
-            return null;
+            if (type is XmlSchemaSimpleType)
+                return null;
+
+            throw new NotImplementedException();
         }
 
         private static string? GetDescription(XmlSchemaAnnotated? element)
@@ -243,33 +242,59 @@ namespace Eos.Smev3.XsdParserApp
             return element.Annotation?.Items.OfType<XmlSchemaDocumentation>().FirstOrDefault()?.Markup?.OfType<XmlText>().FirstOrDefault()?.InnerText;
         }
 
-        private static List<XmlTypeInfo> _types = new List<XmlTypeInfo>();
-        private static IEnumerable<string> GetItems(XmlElementInfo element)
+        private static void Save(string filename, XmlElementInfo rootElement)
         {
-            var replay = !element.Type.IsSimple && _types.Any(t => t.TypeName == element.Type.TypeName && t.Namespace == element.Type.Namespace);
-
-            var value = $"{element.ElementName}" +
-                $"\t{element.Type.Namespace}" +
-                $"\t{element.Type.TypeName}" +
-                $"\t{element.Description?.Replace("\r\n", " ").Replace("\n", " ")}" +
-                $"\t{element.Min}" +
-                $"\t{(element.Max > 100 ? "unbounded" : element.Max.ToString())}" +
-                $"\t{(replay ? "да" : string.Empty)}";
-
-            yield return value;
-
-            if (!element.Type.IsSimple && replay)
-                yield break;
-            else
-                _types.Add(element.Type);
-
-            if (element.Children is not null)
+            using (ExcelPackage excel = new())
             {
-                foreach (var child in element.Children)
+                ExcelWorksheet worksheet = excel.Workbook.Worksheets.Add(rootElement.ElementName);
+                worksheet.View.FreezePanes(2, 1);
+
+                worksheet.Cells["A1"].Value = "Min";
+                worksheet.Cells["B1"].Value = "Max";
+                worksheet.Cells["C1"].Value = "XPath";
+                worksheet.Cells["D1"].Value = "Type";
+                worksheet.Cells["E1"].Value = "Uri";
+                worksheet.Cells["F1"].Value = "Description";
+
+                worksheet.Cells["A1:F1"].Style.Font.Bold = true;
+
+                List<XmlTypeInfo> _types = new();
+
+                IEnumerable<XmlElementInfo> GetElements(XmlElementInfo baseElement)
                 {
-                    foreach (var item in GetItems(child))
-                        yield return $"{element.ElementName}\\{item}";
+                    yield return baseElement;
+
+                    bool replay = !baseElement.Type.IsSimple && _types.Any(t => t.TypeName == baseElement.Type.TypeName && t.Namespace == baseElement.Type.Namespace);
+                    if (!baseElement.Type.IsSimple && replay)
+                        yield break;
+                    else
+                        _types.Add(baseElement.Type);
+
+                    if (baseElement.Children is not null)
+                    {
+                        foreach (XmlElementInfo child in baseElement.Children)
+                        {
+                            foreach (XmlElementInfo childElement in GetElements(child))
+                                yield return childElement;
+                        }
+                    }
                 }
+
+                int index = 1;
+                foreach (XmlElementInfo element in GetElements(rootElement))
+                {
+                    index++;
+
+                    worksheet.Cells[$"A{index}"].Value = element.Min.ToString();
+                    worksheet.Cells[$"B{index}"].Value = element.Max == decimal.MaxValue ? "unbounded" : element.Max.ToString();
+                    worksheet.Cells[$"C{index}"].Value = element.XPath;
+                    worksheet.Cells[$"D{index}"].Value = element.Type.TypeName;
+                    worksheet.Cells[$"E{index}"].Value = element.Type.Namespace;
+                    worksheet.Cells[$"F{index}"].Value = element.Description?.Replace("\r\n", " ").Replace("\n", " ").Replace("\t", " ");
+                }
+
+                worksheet.Cells.AutoFitColumns();
+                excel.SaveAs(new FileInfo(filename));
             }
         }
 
@@ -284,13 +309,18 @@ namespace Eos.Smev3.XsdParserApp
 
             public string? Description { get; set; }
 
-            public XmlElementInfo Parent { get; set; }
+            public XmlElementInfo? Parent { get; set; }
 
-            public XmlElementInfo[] Children { get; set; }
+            public XmlElementInfo[]? Children { get; set; }
 
             public decimal Min { get; set; }
 
             public decimal Max { get; set; }
+
+            public string XPath
+            {
+                get { return $"{Parent?.XPath}\\{ElementName}".TrimStart('\\'); }
+            }
         }
 
         [DebuggerDisplay($"{{{nameof(TypeName)}}}")]
