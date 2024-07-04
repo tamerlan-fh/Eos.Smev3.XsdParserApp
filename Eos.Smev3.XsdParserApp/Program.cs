@@ -26,7 +26,7 @@ namespace Eos.Smev3.XsdParserApp
                 Console.WriteLine(ex.Message);
             }
 
-            Console.Write("Press any key to exit...");
+            Console.Write("\r\nPress any key to exit...");
             Console.ReadKey();
         }
 
@@ -34,25 +34,25 @@ namespace Eos.Smev3.XsdParserApp
 
         static async Task MainAsync(string[] args)
         {
-            Console.Write("Директория с xsd-схемами: ");
+            Console.Write(" Директория с xsd-схемами: ");
             string directory = Console.ReadLine()!;
 
             if (!Directory.Exists(directory))
             {
-                Console.WriteLine($"Указанная директория не найдена");
+                Console.WriteLine($" Указанная директория не найдена");
                 return;
             }
 
             string[] paths = Directory.GetFiles(directory, "*.xsd", SearchOption.AllDirectories);
             if (!paths.Any())
             {
-                Console.WriteLine("Указанная директория не содержит файлы схем с расширением .xsd");
+                Console.WriteLine(" Указанная директория не содержит файлы схем с расширением .xsd");
                 return;
             }
 
             XmlSchema[] schemas = await GetSchemasAsync(paths);
 
-            Console.Write("Имя коренвого элемента xml: ");
+            Console.Write(" Имя корневого элемента xml: ");
             string elementName = Console.ReadLine()!;
 
             XmlSchemaElement? element = schemas
@@ -61,7 +61,7 @@ namespace Eos.Smev3.XsdParserApp
 
             if (element is null)
             {
-                Console.WriteLine($"Элемент '{elementName}' не описан в указанных xsd-схемах");
+                Console.WriteLine($" Элемент '{elementName}' не описан в указанных xsd-схемах");
                 return;
             }
 
@@ -70,7 +70,7 @@ namespace Eos.Smev3.XsdParserApp
             string filename = $"_{elementName}_{DateTime.Now:yyyy-MM-dd_HH_mm}.xlsx";
             Save(filename, _element);
 
-            Console.WriteLine($"Результат сохранен в файле {filename}");
+            Console.WriteLine($" Результат сохранен в файл: {filename}");
         }
 
         private static async Task<XmlSchema[]> GetSchemasAsync(string[] paths)
