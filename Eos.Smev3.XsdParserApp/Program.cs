@@ -104,7 +104,9 @@ namespace Eos.Smev3.XsdParserApp
             if (obj is XmlSchemaElement element)
             {
                 XmlTypeInfo type = GetTypeInfo(element);
-                XmlElementInfo? _element = _elements.FirstOrDefault(e => e.ElementName == element.QualifiedName.Name && e.Namespace == element.QualifiedName.Namespace && e.Type.TypeName == type.TypeName && e.Parent?.ElementName == parent?.ElementName);
+                XmlElementInfo? _element = _elements.FirstOrDefault(e => e.ElementName == element.QualifiedName.Name 
+                    && e.Namespace == element.QualifiedName.Namespace 
+                    && e.Type.TypeName == type.TypeName);
 
                 if (_element is null)
                 {
@@ -121,6 +123,20 @@ namespace Eos.Smev3.XsdParserApp
                     _elements.Add(_element);
 
                     _element.Children = GetElementsFromType(element.ElementSchemaType, _element);
+                }
+                else
+                {
+                    _element = new XmlElementInfo
+                    {
+                        Parent = parent,
+                        Type = type,
+                        ElementName = _element.ElementName,
+                        Namespace = _element.Namespace,
+                        Description = _element.Description,
+                        Min = _element.Min,
+                        Max = _element.Max, 
+                        Children = _element.Children
+                    };
                 }
 
                 return new[] { _element };
@@ -145,7 +161,10 @@ namespace Eos.Smev3.XsdParserApp
             if (obj is XmlSchemaAttribute attribute)
             {
                 XmlTypeInfo type = GetTypeInfo(attribute.AttributeSchemaType!);
-                XmlElementInfo? _element = _elements.FirstOrDefault(e => e.ElementName == attribute.QualifiedName.Name && e.Namespace == attribute.QualifiedName.Namespace && e.Type.TypeName == type.TypeName && e.Parent?.ElementName == parent?.ElementName);
+                XmlElementInfo? _element = _elements.FirstOrDefault(e => e.ElementName == attribute.QualifiedName.Name 
+                    && e.Namespace == attribute.QualifiedName.Namespace 
+                    && e.Type.TypeName == type.TypeName 
+                    && e.Parent?.ElementName == parent?.ElementName);
 
                 if (_element is null)
                 {
@@ -261,7 +280,7 @@ namespace Eos.Smev3.XsdParserApp
                 List<XmlTypeInfo> _types = new();
 
                 IEnumerable<XmlElementInfo> GetElements(XmlElementInfo baseElement)
-                {
+                {                 
                     yield return baseElement;
 
                     bool replay = !baseElement.Type.IsSimple && _types.Any(t => t.TypeName == baseElement.Type.TypeName && t.Namespace == baseElement.Type.Namespace);
